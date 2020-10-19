@@ -16,18 +16,27 @@ namespace Eletiva.Simplex
         /// TotalValor: Função Objetivo
         /// </summary>
         private BranchAndBound.Entities.Info _info;
-        private readonly List<BaseVariableValue> _baseVariableValue = new List<BaseVariableValue>();
-        private readonly List<VariableValue> _variableValues = new List<VariableValue>();
-        private readonly List<BaseValue> _baseValues = new List<BaseValue>();
+        private List<BaseVariableValue> _baseVariableValue;
+        private List<VariableValue> _variableValues;
+        private List<BaseValue> _baseValues;
         private TotalValue _totalValue;
 
         public BranchAndBound.Entities.Result Execute(BranchAndBound.Entities.Info info)
         {
-            _info = info;
+            Reset(info);
             FetchTable();
             Iteration();
             PrintResult();
             return ParseResult();
+        }
+
+        void Reset(BranchAndBound.Entities.Info info)
+        {
+            _info = info;
+            _baseVariableValue = new List<BaseVariableValue>();
+            _variableValues = new List<VariableValue>();
+            _baseValues = new List<BaseValue>();
+            _totalValue = new TotalValue(0);
         }
 
         #region Parse Result

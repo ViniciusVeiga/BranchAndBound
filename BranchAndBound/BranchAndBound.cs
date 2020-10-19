@@ -8,37 +8,78 @@ namespace Eletiva.BranchAndBound
     public sealed class BranchAndBound
     {
         private readonly IMaximizer _maximizer;
-        private Queue<Node> _queue;
+        private Stack<Node> _stack;
+        private Node _node;
 
         public BranchAndBound(IMaximizer maximizer) => 
             _maximizer = maximizer;
 
         public void Execute()
         {
-            _queue = new Queue<Node>();
+            _stack = new Stack<Node>();
 
             var info = new Reader().Read();
             var node = new Node(info);
-            _queue.Enqueue(node);
+            _stack.Push(node);
 
             do
             {
-                var n = _queue.Dequeue();
-                FillSucessors(n);
+                _node = _stack.Peek();
+                FillSucessors();
 
+                if (TargetFound())
+                {
+                    ShowResult();
+                    break;
+                }
 
-            } while (_queue.Count > 0);
+                foreach (var edge in _node.Edges)
+                {
+                    edge.SetParent(_node);
+                    _stack.Push(edge.To);
+                }
+
+            } while (_stack.Count > 0);
         }
 
-        private void FillSucessors(Node node)
+        private void ShowResult()
         {
-            var result = _maximizer.Execute(node.Info);
+            Console.WriteLine("Resultado encontrado!");
         }
 
-        private bool IsResultOK(Entities.Result result)
+        private bool TargetFound() => 
+            _node.IsInteger;
+
+        private void FillSucessors()
         {
-            if ((result.Z % 1) == 0) return false;
-            return true;
+            var result = _maximizer.Execute(_node.Info);
+            
+            if (IsInteger(result.Z))
+            {
+                GetChildrens(result.Z);
+                return;
+            }
+            foreach (var variableResult in result.VariableResults)
+            {
+                if (IsInteger(variableResult.Value))
+                {
+                    GetChildrens(variableResult.Value);
+                    break;
+                }
+            }
+            _node.ThisIsInteger();
         }
+
+        private void GetChildrens(decimal value)
+        {
+            var integer = Convert.ToInt32(value);
+            var node1 = _node.Clone();
+            var node2 = _node.Clone();
+            node1.Info.AddRestrition(new Entities.Restriction(0));
+            _node.AddEdge(node1);
+            _node.AddEdge(node2);
+        }
+
+        private bool IsInteger(decimal value) => (value % 1) == 0;
     }
 }

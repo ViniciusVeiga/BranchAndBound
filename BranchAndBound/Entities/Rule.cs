@@ -1,4 +1,6 @@
-﻿namespace Eletiva.BranchAndBound.Entities
+﻿using System;
+
+namespace Eletiva.BranchAndBound.Entities
 {
     public sealed class Rule
     {

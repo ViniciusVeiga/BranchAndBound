@@ -17,5 +17,8 @@ namespace Eletiva.BranchAndBound.Graph
         public Node From { get; private set; }
         public Node To { get; private set; }
         public double Cost { get; private set; }
+
+        public void SetParent(Node node) => 
+            To = node;
     }
 }
